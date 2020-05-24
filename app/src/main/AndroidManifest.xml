@@ -25,6 +25,10 @@
         <activity android:name=".activity.LoginActivity" />
         <activity android:name=".activity.ItemActivity" />
         <activity android:name=".activity.CreateOrEditItemActivity" />
+        <activity android:name=".activity.CreateOrEditUserActivity" />
+        <activity android:name=".activity.UsersActivity" />
+        <activity android:name=".activity.RolesActivity" />
+        <activity android:name=".activity.MenuActivity" />
     </application>
 
 </manifest>

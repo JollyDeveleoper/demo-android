@@ -150,7 +150,7 @@ public class CreateOrEditItemActivity extends Activity {
             });
             return;
         }
-        finish();
+        finishAffinity();
         startActivity(new Intent(this, MainActivity.class));
     }
 

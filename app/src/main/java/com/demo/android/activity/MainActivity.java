@@ -48,7 +48,7 @@ public class MainActivity extends Activity implements OnItemClickListener {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (PrefsHelper.getAccessToken().isEmpty()) {
-            finish();
+            finishAffinity();
             startActivity(new Intent(this, LoginActivity.class));
             return;
         }
@@ -60,6 +60,8 @@ public class MainActivity extends Activity implements OnItemClickListener {
         loader.setVisibility(View.VISIBLE);
         Button addBtn = this.findViewById(R.id.primary_btn);
         addBtn.setOnClickListener(v -> startActivity(new Intent(this, CreateOrEditItemActivity.class)));
+        findViewById(R.id.settings).setVisibility(View.VISIBLE);
+        findViewById(R.id.settings).setOnClickListener(v1 -> startActivity(new Intent(this, MenuActivity.class)));
     }
 
     private void setAdapter() {
@@ -78,12 +80,11 @@ public class MainActivity extends Activity implements OnItemClickListener {
             @Override
             public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
                 String data = response.body().string();
-                Log.e("TAG", data);
                 try {
                     JSONObject object = new JSONObject(data);
                     if (!response.isSuccessful() && object.has("error")) {
                         if (object.getInt("code") == 401) {
-                            finish();
+                            finishAffinity();
                             APIHelper.expiredToken(MainActivity.this);
                         }
                     }
@@ -127,7 +128,7 @@ public class MainActivity extends Activity implements OnItemClickListener {
                 .setTitle("Удаление")
                 .setMessage("Удалить данный товар?")
                 .setPositiveButton(android.R.string.ok, (dialog, which) -> deleteItem(id, position))
-                .setNegativeButton(android.R.string.cancel, (dialog, which) -> dialog.cancel()).show();
+                .setNegativeButton(android.R.string.cancel, null).show();
     }
 
     private void deleteItem(int id, int index) {

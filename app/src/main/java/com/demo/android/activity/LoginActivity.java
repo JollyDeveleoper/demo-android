@@ -15,6 +15,7 @@ import com.demo.android.R;
 import com.demo.android.helpers.OkHttpHelper;
 import com.demo.android.helpers.PreferencesKeys;
 import com.demo.android.helpers.PrefsHelper;
+import com.google.android.material.textfield.TextInputLayout;
 
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
@@ -45,6 +46,7 @@ public class LoginActivity extends Activity {
         password = this.findViewById(R.id.password);
         loginBtn.setOnClickListener(v -> {
             loginBtn.setText("Загрузка...");
+            ((TextInputLayout) findViewById(R.id.loginBox)).setErrorEnabled(false);
             fetchLogin(login.getText().toString(), password.getText().toString());
         });
     }
@@ -83,7 +85,8 @@ public class LoginActivity extends Activity {
             String error = response.getString("error");
             this.runOnUiThread(() -> {
                 loginBtn.setText("ВОЙТИ");
-                Toast.makeText(Application.getInstance(), error, Toast.LENGTH_SHORT).show();
+                ((TextInputLayout) findViewById(R.id.loginBox)).setError(error);
+                ((TextInputLayout) findViewById(R.id.loginBox)).setErrorEnabled(true);
             });
             return;
         }
@@ -91,7 +94,7 @@ public class LoginActivity extends Activity {
         String token = response.getString("token");
         PrefsHelper.setValue().putString(PreferencesKeys.ACCESS_TOKEN, token).apply();
         PrefsHelper.setValue().putInt(PreferencesKeys.ROLE, role).apply();
-        finish();
+        finishAffinity();
         startActivity(new Intent(this, MainActivity.class));
     }
 }

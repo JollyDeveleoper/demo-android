@@ -1,6 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <include layout="@layout/toolbar" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/users"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:drawableStart="@drawable/ic_group_24px"
+        android:drawablePadding="16dp"
+        android:foreground="?selectableItemBackground"
+        android:padding="16dp"
+        android:text="Пользователи" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/roles"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:drawableStart="@drawable/ic_supervised_user_circle_24px"
+        android:drawablePadding="16dp"
+        android:foreground="?selectableItemBackground"
+        android:padding="16dp"
+        android:text="Роли пользователей" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/exit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:drawableStart="@drawable/ic_exit_to_app_24px"
+        android:drawablePadding="16dp"
+        android:drawableTint="@color/red"
+        android:foreground="?selectableItemBackground"
+        android:padding="16dp"
+        android:text="Выйти"
+        android:textColor="@color/red"
+        android:textStyle="bold" />
+
+</LinearLayout>
