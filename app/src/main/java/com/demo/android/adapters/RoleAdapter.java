@@ -29,13 +29,19 @@ public class RoleAdapter extends RecyclerView.Adapter<RoleAdapter.ViewHolder> {
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(Application.getInstance()).inflate(R.layout.roles_recycler_content, null);
         ViewHolder viewHolder = new ViewHolder(view);
-//        view.setOnClickListener(v -> this.rolesActivity.);
+        view.setOnClickListener(v -> this.rolesActivity.onClick(viewHolder, viewHolder.getAdapterPosition(), roles.get(viewHolder.getAdapterPosition()).getId()));
+        view.setOnLongClickListener(v -> {
+            this.rolesActivity.onLongClick(viewHolder, viewHolder.getAdapterPosition(), roles.get(viewHolder.getAdapterPosition()).getId());
+            return true;
+        });
         return viewHolder;
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-
+        Role role = roles.get(holder.getAdapterPosition());
+        holder.name.setText(role.getName());
+        holder.description.setText(role.getDescription());
     }
 
     @Override
@@ -45,10 +51,12 @@ public class RoleAdapter extends RecyclerView.Adapter<RoleAdapter.ViewHolder> {
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         private TextView name;
+        private TextView description;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             this.name = itemView.findViewById(R.id.name);
+            this.description = itemView.findViewById(R.id.description);
         }
     }
 }

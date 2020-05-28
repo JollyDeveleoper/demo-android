@@ -81,6 +81,7 @@ public class CreateOrEditItemActivity extends Activity {
         this.isEdit = true;
     }
 
+    // Todo вынести в валидатор
     private boolean validate() {
         TextInputEditText[] fields = {
                 titleEt, descriptionEt, urlEt, countEt, priceEt

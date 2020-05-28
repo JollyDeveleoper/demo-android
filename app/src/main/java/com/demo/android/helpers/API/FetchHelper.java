@@ -118,6 +118,32 @@ public class FetchHelper {
         });
     }
 
+    public static final void fetchCreateOrEditRole(int id, String title, String description, OnCallback callback) {
+        JSONObject object = new JSONObject();
+        try {
+            if (id > 0) {
+                object.put("id", id);
+            }
+            object.put("title", title);
+            object.put("description", description);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        RequestBody body = RequestBody.create(JSON, object.toString());
+        Request request = OkHttpHelper.getPostRequest("roles/create", body);
+        OkHttpHelper.getClient().newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                callback.OnError(call);
+            }
+
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                callback.OnSuccess(response);
+            }
+        });
+    }
+
     public static final void fetchCreateOrEditUser(int id, String login, String password, int role, OnCallback callback) {
         JSONObject object = new JSONObject();
         try {
