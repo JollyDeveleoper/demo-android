@@ -26,6 +26,15 @@ public class Item {
     private int id;
     private int count;
     private boolean isSales;
+    private Category category;
+
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
+    }
 
     public boolean isSales() {
         return isSales;

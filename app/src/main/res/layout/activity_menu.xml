@@ -20,6 +20,17 @@
         android:text="Пользователи" />
 
     <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/categories"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:drawableStart="@drawable/ic_group_24px"
+        android:drawablePadding="16dp"
+        android:foreground="?selectableItemBackground"
+        android:padding="16dp"
+        android:text="Категории" />
+
+    <com.google.android.material.textview.MaterialTextView
         android:id="@+id/roles"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

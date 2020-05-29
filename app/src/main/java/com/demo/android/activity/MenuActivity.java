@@ -31,6 +31,8 @@ public class MenuActivity extends Activity {
         if (RoleHelper.isAdmin() || RoleHelper.isModerator()) {
             findViewById(R.id.roles).setVisibility(View.VISIBLE);
             findViewById(R.id.roles).setOnClickListener(v -> startActivity(new Intent(this, RolesActivity.class)));
+            findViewById(R.id.categories).setVisibility(View.VISIBLE);
+            findViewById(R.id.categories).setOnClickListener(v -> startActivity(new Intent(this, CategoryActivity.class)));
         }
     }
 }

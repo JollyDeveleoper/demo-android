@@ -29,6 +29,8 @@
         <activity android:name=".activity.UsersActivity" />
         <activity android:name=".activity.RolesActivity" />
         <activity android:name=".activity.MenuActivity" />
+        <activity android:name=".activity.CategoryActivity" />
+        <activity android:name=".activity.BaseRecyclerActivity" />
     </application>
 
 </manifest>

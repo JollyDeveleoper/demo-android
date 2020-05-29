@@ -5,6 +5,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -13,18 +16,25 @@ import androidx.annotation.Nullable;
 
 import com.demo.android.Application;
 import com.demo.android.R;
+import com.demo.android.helpers.API.FetchHelper;
 import com.demo.android.helpers.APIHelper;
 import com.demo.android.helpers.OkHttpHelper;
+import com.demo.android.interfaces.OnCallback;
+import com.demo.android.models.Category;
+import com.demo.android.models.Role;
 import com.demo.android.utils.Validator;
 import com.google.android.material.checkbox.MaterialCheckBox;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -41,6 +51,10 @@ public class CreateOrEditItemActivity extends Activity {
     private TextInputEditText titleEt, descriptionEt, urlEt, countEt, priceEt;
     private MaterialCheckBox isSales;
 
+    private AutoCompleteTextView category;
+    private List<String> categoriesSpinner = new ArrayList<>();
+    private List<Category> categories = new ArrayList<>();
+
     private int id;
     private boolean isEdit = false;
 
@@ -55,8 +69,11 @@ public class CreateOrEditItemActivity extends Activity {
         url = this.findViewById(R.id.textFieldUrl);
         price = this.findViewById(R.id.textFieldPrice);
         isSales = this.findViewById(R.id.isSales);
+        category = this.findViewById(R.id.filled_exposed_dropdown);
         initViews();
         initWatchers();
+
+        getRoles();
 
         this.findViewById(R.id.primary_btn).setOnClickListener(v -> {
             if (validate()) {
@@ -82,7 +99,65 @@ public class CreateOrEditItemActivity extends Activity {
         priceEt.setText(String.valueOf(intent.getInt("price")));
         urlEt.setText(intent.getString("url"));
         isSales.setChecked(intent.getBoolean("is_sales", false));
+        category.setText(intent.getString("category"));
         this.isEdit = true;
+    }
+
+    private Category findCategoryByName(String name) {
+        Category category = null;
+        for (Category category1 : this.categories) {
+            if (category1.getTitle().equals(name)) category = category1;
+        }
+        return category;
+    }
+
+    private void getRoles() {
+        FetchHelper.fetchCategories(new OnCallback() {
+            @Override
+            public void OnSuccess(Response response) {
+                if (response.isSuccessful()) {
+                    try {
+                        Log.e("TAG", "ad");
+                        JSONObject jsonObject = new JSONObject(response.body().string());
+                        JSONArray array = jsonObject.getJSONArray("data");
+                        fillCategories(array);
+
+                        runOnUiThread(() -> {
+                            setCategoriesAdapter();
+                            if (getIntent().getExtras() != null) {
+                                fillData();
+                            }
+                            ((TextView) findViewById(R.id.title)).setText(isEdit ? "Редактирование" : "Создание");
+                        });
+                    } catch (JSONException | IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            @Override
+            public void OnError(Call response) {
+            }
+        });
+    }
+
+    private void fillCategories(JSONArray jsonArray) throws JSONException {
+        for (int i = 0; i < jsonArray.length(); i++) {
+            JSONObject object = jsonArray.getJSONObject(i);
+            String name = object.getString("title");
+            Category category = new Category();
+            category.setTitle(name);
+            category.setId(object.getInt("id"));
+            categories.add(category);
+            categoriesSpinner.add(name);
+        }
+    }
+
+    private void setCategoriesAdapter() {
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.dropdown_menu_popup_item, categoriesSpinner);
+        category.setAdapter(adapter);
+        findViewById(R.id.loader).setVisibility(View.GONE);
+        category.setVisibility(View.VISIBLE);
     }
 
     // Todo вынести в валидатор
@@ -115,6 +190,10 @@ public class CreateOrEditItemActivity extends Activity {
             jsonObject.put("count", countEt.getText().toString());
             jsonObject.put("price", priceEt.getText().toString());
             jsonObject.put("is_sales", isSales.isChecked());
+            Category category = findCategoryByName(this.category.getText().toString());
+            if (category != null) {
+                jsonObject.put("category_id", category.getId());
+            }
         } catch (JSONException e) {
             e.printStackTrace();
         }

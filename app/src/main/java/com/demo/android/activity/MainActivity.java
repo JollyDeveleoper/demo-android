@@ -22,6 +22,7 @@ import com.demo.android.helpers.OkHttpHelper;
 import com.demo.android.helpers.PrefsHelper;
 import com.demo.android.interfaces.OnCallback;
 import com.demo.android.interfaces.OnItemClickListener;
+import com.demo.android.models.Category;
 import com.demo.android.models.Item;
 
 import org.jetbrains.annotations.NotNull;
@@ -81,14 +82,8 @@ public class MainActivity extends Activity implements OnItemClickListener {
             public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
                 String data = response.body().string();
                 try {
-                    JSONObject object = new JSONObject(data);
-                    if (!response.isSuccessful() && object.has("error")) {
-                        if (object.getInt("code") == 401) {
-                            finishAffinity();
-                            APIHelper.expiredToken(MainActivity.this);
-                        }
-                    }
-                    setData(object.getJSONArray("data"));
+                    JSONArray array = new JSONArray(data);
+                    setData(array);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -107,6 +102,14 @@ public class MainActivity extends Activity implements OnItemClickListener {
             item.setPrice(obj.getInt("price"));
             item.setCount(obj.getInt("count"));
             item.setSales(obj.getBoolean("is_sales"));
+            Object object1 = obj.get("category");
+            if (object1 instanceof JSONObject) {
+                JSONObject object = obj.getJSONObject("category");
+                Category category = new Category();
+                category.setTitle(object.getString("title"));
+                category.setId(object.getInt("id"));
+                item.setCategory(category);
+            }
             this.items.add(item);
         }
         this.runOnUiThread(() -> {

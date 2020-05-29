@@ -47,6 +47,17 @@
                 android:textSize="24sp" />
 
             <TextView
+                android:id="@+id/category"
+                tools:text="Столы"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="16dp"
+                android:maxLines="1"
+                android:ellipsize="end"/>
+
+            <TextView
                 android:id="@+id/titleProduct"
                 tools:text="Подарочный набор"
                 android:textStyle="bold"
@@ -54,9 +65,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginStart="16dp"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="4dp"
                 android:layout_marginEnd="16dp"
-                android:maxLines="23"
+                android:maxLines="3"
                 android:ellipsize="end"
                 android:textSize="20sp" />
 

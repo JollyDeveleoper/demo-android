@@ -17,7 +17,9 @@ import com.demo.android.R;
 import com.demo.android.helpers.OkHttpHelper;
 import com.demo.android.helpers.PrefsHelper;
 import com.demo.android.helpers.RoleHelper;
+import com.demo.android.models.Category;
 import com.demo.android.models.Item;
+import com.demo.android.models.Role;
 
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
@@ -45,7 +47,7 @@ public class ItemActivity extends Activity {
         this.id = getIntent().getExtras().getInt("id");
         fetchItem(this.id);
 
-        if (RoleHelper.isAdmin()) {
+        if (RoleHelper.isAdmin() || RoleHelper.isModerator()) {
             findViewById(R.id.editBtn).setVisibility(View.VISIBLE);
             findViewById(R.id.editBtn).setOnClickListener(v -> {
                 Intent intent = new Intent(this, CreateOrEditItemActivity.class);
@@ -56,6 +58,7 @@ public class ItemActivity extends Activity {
                 intent.putExtra("price", this.item.getPrice());
                 intent.putExtra("url", this.item.getPreviewLink());
                 intent.putExtra("is_sales", this.item.isSales());
+                intent.putExtra("category", this.item.getCategory() != null ? this.item.getCategory().getTitle() : "");
                 startActivity(intent);
             });
         }
@@ -91,11 +94,23 @@ public class ItemActivity extends Activity {
         item.setCount(object.getInt("count"));
         item.setId(object.getInt("id"));
         item.setSales(object.getBoolean("is_sales"));
+        Object o = object.get("category");
+        if (o instanceof JSONObject) {
+            Category category = new Category();
+            JSONObject object1 = object.getJSONObject("category");
+            category.setId(object1.getInt("id"));
+            category.setTitle(object1.getString("title"));
+            item.setCategory(category);
+        }
+
         this.runOnUiThread(() -> {
             ((TextView) this.findViewById(R.id.title)).setText(String.format("Товар №%s", item.getId()));
             ((TextView) this.findViewById(R.id.titleProduct)).setText(item.getTitle());
             ((TextView) this.findViewById(R.id.body)).setText(item.getDescription());
-            ((TextView) this.findViewById(R.id.price)).setText(item.getPrice() + "₽");
+            ((TextView) this.findViewById(R.id.price)).setText(String.format("%s₽", item.getPrice()));
+            if (item.getCategory() != null) {
+                ((TextView) this.findViewById(R.id.category)).setText(item.getCategory().getTitle());
+            }
             if (item.isSales()) {
                 this.findViewById(R.id.is_sales).setVisibility(View.VISIBLE);
                 this.findViewById(R.id.count).setVisibility(View.GONE);
