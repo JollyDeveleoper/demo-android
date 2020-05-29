@@ -1,5 +1,8 @@
 package com.demo.android.models;
 
+import com.demo.android.helpers.PrefsHelper;
+import com.demo.android.helpers.RoleHelper;
+
 public class User {
     private String login;
     private int id;

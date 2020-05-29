@@ -106,6 +106,7 @@ public class MainActivity extends Activity implements OnItemClickListener {
             item.setId(obj.getInt("id"));
             item.setPrice(obj.getInt("price"));
             item.setCount(obj.getInt("count"));
+            item.setSales(obj.getBoolean("is_sales"));
             this.items.add(item);
         }
         this.runOnUiThread(() -> {

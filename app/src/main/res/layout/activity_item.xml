@@ -70,6 +70,22 @@
                 android:layout_marginEnd="16dp"
                 android:textSize="16sp" />
 
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/is_sales"
+                tools:text="ПРОДАНО"
+                android:text="ПРОДАНО"
+                android:visibility="gone"
+                tools:visibility="visible"
+                android:textAllCaps="true"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginStart="16dp"
+                android:textStyle="bold"
+                android:textColor="@color/red"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="16dp"
+                android:textSize="16sp" />
+
             <TextView
                 android:id="@+id/body"
                 tools:text="Lorem Ipsum - это текст-, часто используемый в печати и вэб-дизайне. Lorem Ipsum является стандартной для текстов на латинице с начала XVI века. В то время некий безымянный печатник создал большую коллекцию размеров и форм шрифтов, используя Lorem Ipsum для распечатки образцов. Lorem Ipsum не только успешно пережил без заметных изменений пять веков, но и перешагнул в электронный дизайн. Его популяризации в новое время послужили публикация листов Letraset с образцами Lorem Ipsum в 60-х годах и, в более недавнее время, программы электронной вёрстки типа Aldus PageMaker, в шаблонах которых используется Lorem Ipsum."

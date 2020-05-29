@@ -80,6 +80,7 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <LinearLayout
+                android:id="@+id/countContainer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/textFieldUrl"
@@ -126,6 +127,15 @@
 
                 </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
+            <com.google.android.material.checkbox.MaterialCheckBox
+                android:layout_below="@+id/countContainer"
+                android:text="Продано"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginTop="16dp"
+                android:id="@+id/isSales"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
         </RelativeLayout>
     </ScrollView>
 

@@ -45,7 +45,7 @@ public class ItemActivity extends Activity {
         this.id = getIntent().getExtras().getInt("id");
         fetchItem(this.id);
 
-        if (PrefsHelper.getRole() == RoleHelper.ROLE_ADMIN) {
+        if (RoleHelper.isAdmin()) {
             findViewById(R.id.editBtn).setVisibility(View.VISIBLE);
             findViewById(R.id.editBtn).setOnClickListener(v -> {
                 Intent intent = new Intent(this, CreateOrEditItemActivity.class);
@@ -55,6 +55,7 @@ public class ItemActivity extends Activity {
                 intent.putExtra("description", this.item.getDescription());
                 intent.putExtra("price", this.item.getPrice());
                 intent.putExtra("url", this.item.getPreviewLink());
+                intent.putExtra("is_sales", this.item.isSales());
                 startActivity(intent);
             });
         }
@@ -89,12 +90,18 @@ public class ItemActivity extends Activity {
         item.setPrice(object.getInt("price"));
         item.setCount(object.getInt("count"));
         item.setId(object.getInt("id"));
+        item.setSales(object.getBoolean("is_sales"));
         this.runOnUiThread(() -> {
             ((TextView) this.findViewById(R.id.title)).setText(String.format("Товар №%s", item.getId()));
             ((TextView) this.findViewById(R.id.titleProduct)).setText(item.getTitle());
             ((TextView) this.findViewById(R.id.body)).setText(item.getDescription());
-            ((TextView) this.findViewById(R.id.count)).setText(String.format("На складе - %sшт", item.getCount()));
             ((TextView) this.findViewById(R.id.price)).setText(item.getPrice() + "₽");
+            if (item.isSales()) {
+                this.findViewById(R.id.is_sales).setVisibility(View.VISIBLE);
+                this.findViewById(R.id.count).setVisibility(View.GONE);
+            } else {
+                ((TextView) this.findViewById(R.id.count)).setText(String.format("На складе - %sшт", item.getCount()));
+            }
             Glide.with(Application.getInstance()).load(item.getPreviewLink()).into(((ImageView) this.findViewById(R.id.preview)));
             this.loader.setVisibility(View.GONE);
         });

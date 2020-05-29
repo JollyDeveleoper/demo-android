@@ -6,8 +6,11 @@
 
     <include layout="@layout/toolbar" />
 
+    <include layout="@layout/menu_user_block" />
+
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/users"
+        android:visibility="gone"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:drawableStart="@drawable/ic_group_24px"
@@ -21,6 +24,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:drawableStart="@drawable/ic_supervised_user_circle_24px"
+        android:visibility="gone"
         android:drawablePadding="16dp"
         android:foreground="?selectableItemBackground"
         android:padding="16dp"

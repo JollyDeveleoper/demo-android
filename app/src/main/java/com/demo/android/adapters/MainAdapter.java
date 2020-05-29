@@ -44,7 +44,8 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull MainAdapter.ViewHolder holder, int position) {
         Item item = items.get(holder.getAdapterPosition());
-        holder.title.setText(item.getTitle());
+        String text = item.isSales() ? item.getTitle().concat(" (Продано)") : item.getTitle();
+        holder.title.setText(text);
         holder.description.setText(item.getDescription());
         Glide.with(Application.getInstance())
                 .load(item.getPreviewLink())

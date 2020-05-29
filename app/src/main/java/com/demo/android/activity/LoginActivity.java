@@ -90,10 +90,10 @@ public class LoginActivity extends Activity {
             });
             return;
         }
-        int role = response.getInt("role");
+        String role = response.getString("role");
         String token = response.getString("token");
         PrefsHelper.setValue().putString(PreferencesKeys.ACCESS_TOKEN, token).apply();
-        PrefsHelper.setValue().putInt(PreferencesKeys.ROLE, role).apply();
+        PrefsHelper.setValue().putString(PreferencesKeys.ROLE, role).apply();
         finishAffinity();
         startActivity(new Intent(this, MainActivity.class));
     }

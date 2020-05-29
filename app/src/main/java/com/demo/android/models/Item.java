@@ -25,6 +25,15 @@ public class Item {
     private int price;
     private int id;
     private int count;
+    private boolean isSales;
+
+    public boolean isSales() {
+        return isSales;
+    }
+
+    public void setSales(boolean sales) {
+        isSales = sales;
+    }
 
     public int getCount() {
         return count;

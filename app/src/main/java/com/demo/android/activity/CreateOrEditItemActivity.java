@@ -16,6 +16,7 @@ import com.demo.android.R;
 import com.demo.android.helpers.APIHelper;
 import com.demo.android.helpers.OkHttpHelper;
 import com.demo.android.utils.Validator;
+import com.google.android.material.checkbox.MaterialCheckBox;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
@@ -38,6 +39,7 @@ public class CreateOrEditItemActivity extends Activity {
 
     private TextInputLayout title, description, url, count, price;
     private TextInputEditText titleEt, descriptionEt, urlEt, countEt, priceEt;
+    private MaterialCheckBox isSales;
 
     private int id;
     private boolean isEdit = false;
@@ -52,6 +54,7 @@ public class CreateOrEditItemActivity extends Activity {
         count = this.findViewById(R.id.textFieldCount);
         url = this.findViewById(R.id.textFieldUrl);
         price = this.findViewById(R.id.textFieldPrice);
+        isSales = this.findViewById(R.id.isSales);
         initViews();
         initWatchers();
 
@@ -78,6 +81,7 @@ public class CreateOrEditItemActivity extends Activity {
         countEt.setText(String.valueOf(intent.getInt("count")));
         priceEt.setText(String.valueOf(intent.getInt("price")));
         urlEt.setText(intent.getString("url"));
+        isSales.setChecked(intent.getBoolean("is_sales", false));
         this.isEdit = true;
     }
 
@@ -110,6 +114,7 @@ public class CreateOrEditItemActivity extends Activity {
             jsonObject.put("image_url", urlEt.getText().toString());
             jsonObject.put("count", countEt.getText().toString());
             jsonObject.put("price", priceEt.getText().toString());
+            jsonObject.put("is_sales", isSales.isChecked());
         } catch (JSONException e) {
             e.printStackTrace();
         }
