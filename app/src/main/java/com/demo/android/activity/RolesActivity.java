@@ -1,21 +1,13 @@
 package com.demo.android.activity;
 
-import android.app.Activity;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Bundle;
-import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.demo.android.Application;
@@ -27,7 +19,6 @@ import com.demo.android.interfaces.OnItemClickListener;
 import com.demo.android.models.Role;
 import com.demo.android.utils.Validator;
 import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -40,24 +31,23 @@ import java.util.List;
 import okhttp3.Call;
 import okhttp3.Response;
 
-public class RolesActivity extends Activity implements OnItemClickListener {
+public class RolesActivity extends BaseRecyclerActivity implements OnItemClickListener {
     private List<Role> roles = new ArrayList<>();
-
-    private ProgressBar loader;
-    private RecyclerView recyclerView;
 
     private int position;
 
     @Override
+    protected void setAdapter() {
+        super.setAdapter();
+        recyclerView.setAdapter(new RoleAdapter(roles, this));
+    }
+
+    @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.base_recycler);
-        this.recyclerView = findViewById(R.id.recycler);
-        this.loader = findViewById(R.id.loader);
         findViewById(R.id.primary_btn).setOnClickListener(v -> {
             createOrEditAlertDialogForm("Создание", "", false, 0);
         });
-        fetchItems();
     }
 
     @Override
@@ -65,30 +55,30 @@ public class RolesActivity extends Activity implements OnItemClickListener {
         String title = roles.get(position).getName();
         String description = roles.get(position).getDescription();
         this.position = position;
-        createOrEditAlertDialogForm(title, description,true, id);
+        createOrEditAlertDialogForm(title, description, true, id);
     }
 
     @Override
     public void onLongClick(RecyclerView.ViewHolder viewHolder, int position, int id) {
+        this.position = position;
         new AlertDialog.Builder(this)
                 .setTitle("Удаление")
                 .setMessage("Удалить данную роль?")
-                .setPositiveButton(android.R.string.ok, (dialog, which) -> deleteItem(id, position))
+                .setPositiveButton(android.R.string.ok, (dialog, which) -> fetchDelete(id))
                 .setNegativeButton(android.R.string.cancel, null).show();
     }
 
-    private void setAdapter() {
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(new RoleAdapter(roles, this));
-    }
-
-    private void fetchItems() {
+    @Override
+    protected void fetchItems() {
         FetchHelper.fetchRoles(new OnCallback() {
             @Override
             public void OnSuccess(Response response) {
                 if (response.isSuccessful()) {
                     try {
-                        setData(new JSONArray(response.body().string()));
+                        JSONArray array = new JSONArray(response.body().string());
+                        for (int i = 0; i < array.length(); i++) {
+                            setData(array.getJSONObject(i));
+                        }
                         runOnUiThread(() -> {
                             loader.setVisibility(View.GONE);
                             setAdapter();
@@ -101,23 +91,12 @@ public class RolesActivity extends Activity implements OnItemClickListener {
 
             @Override
             public void OnError(Call response) {
-                Log.e("TAG", response.toString());
             }
         });
     }
 
-    private void setData(JSONArray jsonArray) throws JSONException {
-        for (int i = 0; i < jsonArray.length(); i++) {
-            JSONObject object = jsonArray.getJSONObject(i);
-            Role role = new Role();
-            role.setName(object.getString("name"));
-            role.setDescription(object.getString("description"));
-            role.setId(object.getInt("id"));
-            roles.add(role);
-        }
-    }
-
-    private void deleteItem(int id, int index) {
+    @Override
+    protected void fetchDelete(int id) {
         FetchHelper.fetchDeleteRole(id, new OnCallback() {
             @Override
             public void OnSuccess(Response response) {
@@ -129,8 +108,8 @@ public class RolesActivity extends Activity implements OnItemClickListener {
                                 Toast.makeText(Application.getInstance(), object.getString("error"), Toast.LENGTH_SHORT).show();
                                 return;
                             }
-                            roles.remove(index);
-                            recyclerView.getAdapter().notifyItemRemoved(index);
+                            roles.remove(position);
+                            recyclerView.getAdapter().notifyItemRemoved(position);
                         } catch (JSONException | IOException e) {
                             e.printStackTrace();
                         }
@@ -142,6 +121,15 @@ public class RolesActivity extends Activity implements OnItemClickListener {
             public void OnError(Call response) {
             }
         });
+    }
+
+    @Override
+    protected void setData(JSONObject object) throws JSONException {
+        Role role = new Role();
+        role.setName(object.getString("name"));
+        role.setDescription(object.getString("description"));
+        role.setId(object.getInt("id"));
+        roles.add(role);
     }
 
     private void fetchSave(String title, String description, int id) {
@@ -197,30 +185,15 @@ public class RolesActivity extends Activity implements OnItemClickListener {
         dialog.setOnShowListener(dialog1 -> {
             Button b = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
             b.setOnClickListener(view1 -> {
-                // TODO Do something
-                if (validate(title, description)) {
+                TextInputEditText[] fields = {
+                        title, description
+                };
+                if (Validator.validate(fields)) {
                     fetchSave(title.getText().toString(), description.getText().toString(), id);
                     dialog1.cancel();
                 }
             });
         });
         dialog.show();
-    }
-
-    private boolean validate(TextInputEditText titleEt, TextInputEditText descriptionEt) {
-        TextInputEditText[] fields = {
-                titleEt, descriptionEt
-        };
-        boolean valid = true;
-        for (TextInputEditText field : fields) {
-            if (field.getText() == null || TextUtils.isEmpty(field.getText().toString())) {
-                ((TextInputLayout) field.getParent().getParent()).setError("Это обязательное поле");
-                ((TextInputLayout) field.getParent().getParent()).setErrorEnabled(true);
-                valid = false;
-            } else {
-                ((TextInputLayout) field.getParent().getParent()).setErrorEnabled(false);
-            }
-        }
-        return valid;
     }
 }
