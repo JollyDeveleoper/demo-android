@@ -32,26 +32,27 @@ import java.util.List;
 import okhttp3.Call;
 import okhttp3.Response;
 
-public class UsersActivity extends Activity implements OnItemClickListener {
-    private RecyclerView recyclerView;
-    private ProgressBar loader;
+public class UsersActivity extends BaseRecyclerActivity implements OnItemClickListener {
     private List<User> userList = new ArrayList<>();
+    private int position;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.base_recycler);
         ((TextView) findViewById(R.id.title)).setText("Пользователи");
-        this.recyclerView = findViewById(R.id.recycler);
-        this.loader = findViewById(R.id.loader);
-        loader.setVisibility(View.VISIBLE);
-        findViewById(R.id.primary_btn).setOnClickListener(v -> {
-            startActivity(new Intent(this, CreateOrEditUserActivity.class));
-        });
-        fetchData();
+        findViewById(R.id.primary_btn).setOnClickListener(v -> startActivity(new Intent(this, CreateOrEditUserActivity.class)));
     }
 
-    private void fetchData() {
+    @Override
+    protected void OnRefresh() {
+        userList.clear();
+        loader.setVisibility(View.VISIBLE);
+        fetchItems();
+        refreshLayout.setRefreshing(false);
+    }
+
+    @Override
+    protected void fetchItems() {
         FetchHelper.fetchUsers(new OnCallback() {
             @Override
             public void OnSuccess(Response response) {
@@ -75,13 +76,33 @@ public class UsersActivity extends Activity implements OnItemClickListener {
         });
     }
 
-    private void setAdapter() {
-        this.recyclerView.setLayoutManager(new LinearLayoutManager(this));
+    @Override
+    protected void fetchDelete(int id) {
+        FetchHelper.fetchDeleteUser(id, new OnCallback() {
+            @Override
+            public void OnSuccess(Response response) {
+                if (response.isSuccessful()) {
+                    runOnUiThread(() -> {
+                        recyclerView.getAdapter().notifyItemRemoved(position);
+                        userList.remove(position);
+                    });
+                }
+            }
+
+            @Override
+            public void OnError(Call response) { }
+        });
+    }
+
+    @Override
+    protected void setAdapter() {
+        super.setAdapter();
         this.recyclerView.setAdapter(new UserAdapter(this.userList, this));
         loader.setVisibility(View.GONE);
     }
 
-    private void setData(JSONObject object) throws JSONException {
+    @Override
+    protected void setData(JSONObject object) throws JSONException {
         User user = new User();
         user.setId(object.getInt("id"));
         user.setLogin(object.getString("login"));
@@ -109,20 +130,8 @@ public class UsersActivity extends Activity implements OnItemClickListener {
                 .setTitle("Удаление")
                 .setMessage("Удалить пользователя?")
                 .setPositiveButton(android.R.string.ok, (dialog, which) -> {
-                    FetchHelper.fetchDeleteUser(id, new OnCallback() {
-                        @Override
-                        public void OnSuccess(Response response) {
-                            if (response.isSuccessful()) {
-                                runOnUiThread(() -> {
-                                    recyclerView.getAdapter().notifyItemRemoved(position);
-                                    userList.remove(position);
-                                });
-                            }
-                        }
-
-                        @Override
-                        public void OnError(Call response) { }
-                    });
+                    this.position = position;
+                    fetchDelete(id);
                 })
                 .setNegativeButton(android.R.string.cancel, null)
                 .show();

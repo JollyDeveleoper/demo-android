@@ -19,15 +19,19 @@ public class MenuActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_menu);
         ((TextView) findViewById(R.id.title)).setText("Меню");
+        // выход
         findViewById(R.id.exit).setOnClickListener(v -> {
             finishAffinity();
             APIHelper.expiredToken(this);
         });
+        // Роль (ник) юзера, под которым залогинены
         ((TextView) findViewById(R.id.username)).setText(PrefsHelper.getRole());
+        // Доступ только админу
         if (RoleHelper.isAdmin()) {
             findViewById(R.id.users).setVisibility(View.VISIBLE);
             findViewById(R.id.users).setOnClickListener(v -> startActivity(new Intent(this, UsersActivity.class)));
         }
+        // Доступ админу или модератору
         if (RoleHelper.isAdmin() || RoleHelper.isModerator()) {
             findViewById(R.id.roles).setVisibility(View.VISIBLE);
             findViewById(R.id.roles).setOnClickListener(v -> startActivity(new Intent(this, RolesActivity.class)));

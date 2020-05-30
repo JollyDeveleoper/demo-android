@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -45,9 +46,16 @@ public class RolesActivity extends BaseRecyclerActivity implements OnItemClickLi
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        findViewById(R.id.primary_btn).setOnClickListener(v -> {
-            createOrEditAlertDialogForm("Создание", "", false, 0);
-        });
+        ((TextView) findViewById(R.id.title)).setText("Роли пользователей");
+        findViewById(R.id.primary_btn).setOnClickListener(v -> createOrEditAlertDialogForm("Создание", "", false, 0));
+    }
+
+    @Override
+    protected void OnRefresh() {
+        roles.clear();
+        loader.setVisibility(View.VISIBLE);
+        fetchItems();
+        refreshLayout.setRefreshing(false);
     }
 
     @Override

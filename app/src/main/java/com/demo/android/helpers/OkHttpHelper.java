@@ -10,6 +10,10 @@ public class OkHttpHelper {
 
     private static OkHttpClient client;
 
+    /**
+     * Клиент для запросов
+     * @return
+     */
     public static OkHttpClient getClient() {
         if (client == null) {
             client = new OkHttpClient();
@@ -17,18 +21,37 @@ public class OkHttpHelper {
         return client;
     }
 
+    /**
+     * GET запрос
+     *
+     * @param route
+     * @return
+     */
     public static Request getRequest(String route) {
         return buildBaseRequest(route)
                 .get()
                 .build();
     }
 
+    /**
+     * POST запрос
+     *
+     * @param route
+     * @param body
+     * @return
+     */
     public static Request getPostRequest(String route, RequestBody body) {
         return buildBaseRequest(route)
                 .post(body)
                 .build();
     }
 
+    /**
+     * Билдим базовый request с access_token
+     *
+     * @param route
+     * @return
+     */
     private static Request.Builder buildBaseRequest(String route) {
         return new Request.Builder()
                 .addHeader("Authorization", "Bearer " + APIHelper.TOKEN)

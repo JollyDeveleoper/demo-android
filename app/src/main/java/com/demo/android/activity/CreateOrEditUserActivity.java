@@ -3,7 +3,6 @@ package com.demo.android.activity;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -37,7 +36,6 @@ public class CreateOrEditUserActivity extends Activity {
 
     private TextInputEditText login, password;
     private AutoCompleteTextView role;
-    private TextInputLayout loginBox, passwordBox;
     private List<String> rolesSpinner = new ArrayList<>();
     private List<Role> roles = new ArrayList<>();
     private boolean isEdit = false;
@@ -51,8 +49,8 @@ public class CreateOrEditUserActivity extends Activity {
         password = findViewById(R.id.password);
         role = findViewById(R.id.filled_exposed_dropdown);
 
-        loginBox = findViewById(R.id.loginBox);
-        passwordBox = findViewById(R.id.passwordBox);
+        TextInputLayout loginBox = findViewById(R.id.loginBox);
+        TextInputLayout passwordBox = findViewById(R.id.passwordBox);
 
         login.addTextChangedListener(new Validator(loginBox, false));
         password.addTextChangedListener(new Validator(passwordBox, false));
@@ -96,6 +94,9 @@ public class CreateOrEditUserActivity extends Activity {
                 });
     }
 
+    /**
+     * Заполняем поля
+     */
     private void fillData() {
         Bundle bundle = getIntent().getExtras();
         this.id = bundle.getInt("id");
@@ -105,7 +106,9 @@ public class CreateOrEditUserActivity extends Activity {
         isEdit = true;
     }
 
-
+    /**
+     * Получаем роли
+     */
     private void getRoles() {
         FetchHelper.fetchRoles(new OnCallback() {
             @Override
@@ -145,6 +148,9 @@ public class CreateOrEditUserActivity extends Activity {
         }
     }
 
+    /**
+     * Заполняем селект
+     */
     private void setRolesAdapter() {
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.dropdown_menu_popup_item, rolesSpinner);
         role.setAdapter(adapter);

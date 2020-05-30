@@ -1,5 +1,8 @@
 package com.demo.android.models;
 
+/**
+ * Категории
+ */
 public class Category {
     private String title;
 

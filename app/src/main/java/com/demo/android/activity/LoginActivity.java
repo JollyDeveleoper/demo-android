@@ -32,7 +32,6 @@ import okhttp3.Response;
 import static com.demo.android.helpers.OkHttpHelper.JSON;
 
 public class LoginActivity extends Activity {
-    private static final String API = "https://demo.maffinca.design/api/login";
     private Button loginBtn;
     private EditText login;
     private EditText password;
@@ -81,19 +80,22 @@ public class LoginActivity extends Activity {
     }
 
     private void callbackLogin(JSONObject response) throws JSONException {
+        // Если есть какие-то ошибки (неверный логин или пароль), то обрабатываем их
         if (response.has("error")) {
             String error = response.getString("error");
             this.runOnUiThread(() -> {
-                loginBtn.setText("ВОЙТИ");
+                    loginBtn.setText("Войти");
                 ((TextInputLayout) findViewById(R.id.loginBox)).setError(error);
                 ((TextInputLayout) findViewById(R.id.loginBox)).setErrorEnabled(true);
             });
             return;
         }
+        // Если все корректно - сохраняем токен для последующих запросов
         String role = response.getString("role");
         String token = response.getString("token");
         PrefsHelper.setValue().putString(PreferencesKeys.ACCESS_TOKEN, token).apply();
         PrefsHelper.setValue().putString(PreferencesKeys.ROLE, role).apply();
+        // Перезапускаем приложение
         finishAffinity();
         startActivity(new Intent(this, MainActivity.class));
     }

@@ -1,10 +1,10 @@
 package com.demo.android.activity;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -18,7 +18,6 @@ import com.demo.android.helpers.API.FetchHelper;
 import com.demo.android.interfaces.OnCallback;
 import com.demo.android.interfaces.OnItemClickListener;
 import com.demo.android.models.Category;
-import com.demo.android.models.Role;
 import com.demo.android.utils.Validator;
 import com.google.android.material.textfield.TextInputEditText;
 
@@ -40,9 +39,16 @@ public class CategoryActivity extends BaseRecyclerActivity implements OnItemClic
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        findViewById(R.id.primary_btn).setOnClickListener(v -> {
-            createOrEditAlertDialog("Создание", false, 0);
-        });
+        ((TextView) findViewById(R.id.title)).setText("Категории");
+        findViewById(R.id.primary_btn).setOnClickListener(v -> createOrEditAlertDialog("Создание", false, 0));
+    }
+
+    @Override
+    protected void OnRefresh() {
+        categories.clear();
+        loader.setVisibility(View.VISIBLE);
+        fetchItems();
+        refreshLayout.setRefreshing(false);
     }
 
     private void createOrEditAlertDialog(String titleCategory, boolean isEdit, int id) {
@@ -62,13 +68,13 @@ public class CategoryActivity extends BaseRecyclerActivity implements OnItemClic
         dialog.setOnShowListener(dialog1 -> {
             Button b = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
             b.setOnClickListener(view1 -> {
-                // TODO Do something
-//                if (validate(title)) {
-//                    fetchSave(title.getText().toString(), id);
-//                    dialog1.cancel();
-//                }
-                fetchSave(title.getText().toString(), id);
-                dialog1.cancel();
+                TextInputEditText[] fields = {
+                        title
+                };
+                if (Validator.validate(fields)) {
+                    fetchSave(title.getText().toString(), id);
+                    dialog1.cancel();
+                }
             });
         });
         dialog.show();
@@ -92,7 +98,7 @@ public class CategoryActivity extends BaseRecyclerActivity implements OnItemClic
                                 recyclerView.getAdapter().notifyItemChanged(position);
                             } else {
                                 categories.add(category);
-                                recyclerView.getAdapter().notifyItemInserted(categories.size() - 1);
+                                recyclerView.getAdapter().notifyItemInserted(0);
                             }
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -129,7 +135,8 @@ public class CategoryActivity extends BaseRecyclerActivity implements OnItemClic
             }
 
             @Override
-            public void OnError(Call response) { }
+            public void OnError(Call response) {
+            }
         });
     }
 
@@ -156,7 +163,8 @@ public class CategoryActivity extends BaseRecyclerActivity implements OnItemClic
             }
 
             @Override
-            public void OnError(Call response) { }
+            public void OnError(Call response) {
+            }
         });
     }
 
@@ -185,9 +193,7 @@ public class CategoryActivity extends BaseRecyclerActivity implements OnItemClic
         new AlertDialog.Builder(this)
                 .setTitle("Удаление")
                 .setMessage("При удалении все товары в этой категории будут так же удалены")
-                .setPositiveButton(android.R.string.ok, (dialog, which) -> {
-                    fetchDelete(id);
-                })
+                .setPositiveButton(android.R.string.ok, (dialog, which) -> fetchDelete(id))
                 .setNegativeButton(android.R.string.cancel, null)
                 .show();
     }

@@ -2,6 +2,9 @@ package com.demo.android.models;
 
 import android.widget.ImageView;
 
+/**
+ * Товары
+ */
 public class Item {
     public String getTitle() {
         return title;
@@ -26,6 +29,7 @@ public class Item {
     private int id;
     private int count;
     private boolean isSales;
+    // ссылка на товар
     private Category category;
 
     public Category getCategory() {

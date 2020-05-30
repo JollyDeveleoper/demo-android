@@ -1,5 +1,8 @@
 package com.demo.android.models;
 
+/**
+ * Роли
+ */
 public class Role {
     private int id;
     private String name;

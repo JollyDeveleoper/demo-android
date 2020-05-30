@@ -20,6 +20,22 @@ import okhttp3.Response;
 import static com.demo.android.helpers.OkHttpHelper.JSON;
 
 public class FetchHelper {
+    public static final void fetchItems(OnCallback callback) {
+        Request request = OkHttpHelper.getRequest("items");
+        OkHttpHelper.getClient().newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                callback.OnError(call);
+
+            }
+
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) {
+                callback.OnSuccess(response);
+            }
+        });
+    }
+
     public static final void fetchDeleteItem(int id, OnCallback callback) {
         JSONObject object = new JSONObject();
         try {
