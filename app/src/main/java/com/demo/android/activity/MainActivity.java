@@ -1,23 +1,36 @@
 package com.demo.android.activity;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.AppCompatCheckBox;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.demo.android.Application;
 import com.demo.android.R;
 import com.demo.android.adapters.MainAdapter;
 import com.demo.android.helpers.API.FetchHelper;
+import com.demo.android.helpers.APIHelper;
+import com.demo.android.helpers.OkHttpHelper;
 import com.demo.android.helpers.PrefsHelper;
+import com.demo.android.helpers.RoleHelper;
 import com.demo.android.interfaces.OnCallback;
 import com.demo.android.interfaces.OnItemClickListener;
 import com.demo.android.models.Category;
 import com.demo.android.models.Item;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -27,7 +40,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
+
+import static com.demo.android.helpers.OkHttpHelper.JSON;
 
 /**
  * Главный экран
@@ -40,15 +58,19 @@ public class MainActivity extends BaseRecyclerActivity implements OnItemClickLis
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         // Если не авторизованы - перебрасываем на авторизацию
         if (PrefsHelper.getAccessToken().isEmpty()) {
             finishAffinity();
             startActivity(new Intent(this, LoginActivity.class));
             return;
         }
-        super.onCreate(savedInstanceState);
         Button addBtn = this.findViewById(R.id.primary_btn);
-        addBtn.setOnClickListener(v -> startActivity(new Intent(this, CreateOrEditItemActivity.class)));
+        if (RoleHelper.isManager()) {
+            addBtn.setVisibility(View.GONE);
+        } else {
+            addBtn.setOnClickListener(v -> startActivity(new Intent(this, CreateOrEditItemActivity.class)));
+        }
         findViewById(R.id.settings).setVisibility(View.VISIBLE);
         findViewById(R.id.settings).setOnClickListener(v1 -> startActivity(new Intent(this, MenuActivity.class)));
     }
@@ -139,19 +161,65 @@ public class MainActivity extends BaseRecyclerActivity implements OnItemClickLis
     public void onClick(RecyclerView.ViewHolder viewHolder, int position, int id) {
         Intent intent = new Intent(this, ItemActivity.class);
         intent.putExtra("id", id);
+        intent.putExtra("index", position + 1);
         startActivity(intent);
     }
 
     @Override
     public void onLongClick(RecyclerView.ViewHolder viewHolder, int position, int id) {
+        // Закрываем доступ на удаление товара всем, кроме админа
+        boolean isSales = this.items.get(position).isSales();
+        String[] items = {
+          isSales ? "Возобновить продажу" : "Продать",
+          "Удалить"
+        };
         new AlertDialog.Builder(this)
-                .setTitle("Удаление")
-                .setMessage("Удалить данный товар?")
-                .setPositiveButton(android.R.string.ok, (dialog, which) -> {
-                    this.position = position;
-                    fetchDelete(id);
+                .setTitle("Действия")
+                .setItems(items, (dialog, which) -> {
+                    switch (which) {
+                        case 0:
+                            fetchUpdate(id, isSales);
+                            break;
+                        case 1:
+                            if (!RoleHelper.isAdmin()) {
+                                Toast.makeText(Application.getInstance(), "У вас нет прав на удаление записи", Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+                            this.position = position;
+                            fetchDelete(id);
+                            break;
+                    }
                 })
-                .setNegativeButton(android.R.string.cancel, null).show();
+                .setPositiveButton(android.R.string.ok, null)
+                .show();
+    }
+
+    private void fetchUpdate(int id, boolean isSales) {
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("id", id);
+            jsonObject.put("is_sales", !isSales);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        RequestBody body = RequestBody.create(JSON, jsonObject.toString());
+        Request request = new Request.Builder()
+                .addHeader("Authorization", "Bearer " + APIHelper.TOKEN)
+                .url(APIHelper.BASE_DOMAIN + "/items/create")
+                .post(body)
+                .build();
+        OkHttpHelper.getClient().newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {}
+
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                runOnUiThread(() -> {
+                    OnRefresh();
+                });
+            }
+        });
     }
 
     /**

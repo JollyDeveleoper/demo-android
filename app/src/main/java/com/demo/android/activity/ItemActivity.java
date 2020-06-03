@@ -3,23 +3,26 @@ package com.demo.android.activity;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
 import com.demo.android.Application;
 import com.demo.android.R;
 import com.demo.android.helpers.OkHttpHelper;
-import com.demo.android.helpers.PrefsHelper;
 import com.demo.android.helpers.RoleHelper;
 import com.demo.android.models.Category;
 import com.demo.android.models.Item;
-import com.demo.android.models.Role;
 
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
@@ -37,6 +40,7 @@ public class ItemActivity extends Activity {
     private int id;
     private ProgressBar loader;
     private Item item;
+    private int index;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -45,6 +49,7 @@ public class ItemActivity extends Activity {
         this.loader = this.findViewById(R.id.loader);
         this.loader.setVisibility(View.VISIBLE);
         this.id = getIntent().getExtras().getInt("id");
+        this.index = getIntent().getExtras().getInt("index");
         fetchItem(this.id);
 
         if (RoleHelper.isAdmin() || RoleHelper.isModerator()) {
@@ -69,7 +74,6 @@ public class ItemActivity extends Activity {
         OkHttpHelper.getClient().newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                Log.e("TAG", e.getMessage());
             }
 
             @Override
@@ -104,7 +108,7 @@ public class ItemActivity extends Activity {
         }
 
         this.runOnUiThread(() -> {
-            ((TextView) this.findViewById(R.id.title)).setText(String.format("Товар №%s", item.getId()));
+            ((TextView) this.findViewById(R.id.title)).setText(String.format("Товар №%s", this.index));
             ((TextView) this.findViewById(R.id.titleProduct)).setText(item.getTitle());
             ((TextView) this.findViewById(R.id.body)).setText(item.getDescription());
             ((TextView) this.findViewById(R.id.price)).setText(String.format("%s₽", item.getPrice()));
